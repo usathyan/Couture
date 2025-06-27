@@ -1,0 +1,19 @@
+# Application Dependencies
+fastapi
+uvicorn[standard]
+pydantic[email]
+boto3
+awswrangler
+polars
+python-jose
+passlib==1.7.4
+bcrypt==3.2.0
+python-multipart
+
+# Development & Linting Dependencies
+ruff
+pyright
+
+# Testing Dependencies
+pytest
+httpx 
