@@ -41,28 +41,46 @@ The Couture Bookkeeping System helps you:
 
 ## Understanding User Roles
 
-The system has two types of users with different permissions:
+The system has four types of users with different levels of access:
 
 ### Staff Members
 **Who they are**: Procurement team in Bangalore, general employees
 **What they can do**:
-- Record new saree purchases
+- Submit saree purchase requests (for approval)
 - Submit expense reports
 - View the saree catalog
 - Update their own profile
 
 **What they cannot do**:
-- Approve expenses
+- Approve procurement requests or expenses
 - View other people's expense reports
 - Access management reports
 
 ### Managers
-**Who they are**: Business owners, senior managers, financial controllers
+**Who they are**: Department managers, team leaders
 **What they can do**:
 - Everything that Staff can do, plus:
+- Approve or reject procurement requests
+- Add additional costs during procurement approval
 - Approve or reject expense reports
 - View all expense reports from all staff
 - Access business summaries and reports
+
+### Partners
+**Who they are**: Business partners, senior executives
+**What they can do**:
+- Everything that Managers can do, plus:
+- See procurement requests across all managers
+- View expenses across all departments
+- Access company-wide reports and analytics
+
+### Administrators
+**Who they are**: System administrators, business owners
+**What they can do**:
+- Everything that Partners can do, plus:
+- Full system access and configuration
+- User management and role assignment
+- System maintenance and oversight
 
 ---
 
@@ -90,14 +108,18 @@ The system has two types of users with different permissions:
 
 *This section is primarily for procurement staff in Bangalore*
 
-### When to Record a Purchase
+### Understanding the New Approval Process
 
-Record every saree purchase immediately after buying from suppliers. This ensures accurate inventory and cost tracking.
+**Important Change**: Saree purchases now require manager approval before final pricing is set. This gives managers control over additional costs and final pricing decisions.
 
-### Step-by-Step Purchase Recording
+### When to Submit a Purchase Request
+
+Submit a purchase request immediately after buying from suppliers. The request will be pending until a manager reviews and approves it.
+
+### Step-by-Step Purchase Request Submission
 
 1. **Navigate to Procurement**
-   - Click "Record New Purchase" from your dashboard
+   - Click "Submit Purchase Request" from your dashboard
    - Or go to the "Procurement" section
 
 2. **Enter Saree Details**
@@ -105,26 +127,55 @@ Record every saree purchase immediately after buying from suppliers. This ensure
    - **Description**: Add details about the saree (pattern, weave, special features)
    - **Purchase Cost**: Enter the amount you paid in Indian Rupees (₹)
    - **Markup Percentage**: Leave blank to use default (20%) or enter a specific markup
+   - **Image URLs**: Add links to photos if available
 
 3. **Review and Submit**
    - Double-check all information
-   - Click "Record Purchase"
-   - You'll see a confirmation with the calculated US Dollar selling price
+   - Click "Submit Request"
+   - You'll see a confirmation that your request is pending approval
 
-### Understanding Price Calculations
+### What Happens After Submission
 
-**Example**: You buy a saree for ₹15,000
-- **Exchange Rate**: System uses current rate (approximately ₹83.50 = $1)
-- **US Cost**: ₹15,000 ÷ 83.50 = $179.64
-- **Markup**: 20% markup = $179.64 × 1.20 = $215.57
-- **Final Selling Price**: $215.57
+1. **Pending Status**: The saree appears in your catalog with "Pending" status
+2. **Manager Review**: A manager will review your request
+3. **Approval Process**: Manager may:
+   - Approve as-is
+   - Add additional costs (transportation, handling, etc.)
+   - Adjust markup percentage
+   - Reject the request (with reason)
+4. **Final Pricing**: Only after approval will the final USD selling price be calculated
 
-### What Happens After Recording
+### Understanding the Approval Workflow
 
-1. The saree automatically appears in your catalog
-2. The selling price is calculated and ready for WhatsApp store
-3. A purchase record is saved for bookkeeping
-4. Managers can see the new inventory
+**Your Request** → **Manager Review** → **Approved/Rejected**
+
+**If Approved**:
+- Final selling price is calculated
+- Saree becomes available for sale
+- Any additional costs are tracked as business expenses
+
+**If Rejected**:
+- You'll see the reason for rejection
+- You can discuss with your manager
+- Resubmit if appropriate
+
+### Example Approval Process
+
+**Your Submission**: Saree for ₹15,000 with 20% markup
+**Manager Review**: Adds ₹500 for transportation, changes markup to 25%
+**Final Calculation**:
+- **Total Cost**: ₹15,000 + ₹500 = ₹15,500
+- **Exchange Rate**: 0.012 (₹1 = $0.012)
+- **US Cost**: ₹15,500 × 0.012 = $186.00
+- **Final Price**: $186.00 × 1.25 = $232.50
+
+### Tracking Your Requests
+
+1. **View Requests**: Go to "My Procurement Requests"
+2. **Check Status**: See current status of each request:
+   - **Pending**: Waiting for manager review
+   - **Approved**: Approved and ready for sale
+   - **Rejected**: Not approved (with reason)
 
 ---
 
@@ -137,21 +188,30 @@ Record every saree purchase immediately after buying from suppliers. This ensure
 3. **View Details**: Click on any saree to see:
    - Full description
    - Purchase cost (in Rupees)
-   - Selling price (in Dollars)
+   - Selling price (in Dollars, if approved)
    - Markup percentage
    - Purchase date and location
+   - **Status**: Pending, Approved, or Rejected
+
+### Understanding Saree Status
+
+- **Pending** 🟡: Waiting for manager approval, not yet available for sale
+- **Approved** ✅: Ready for sale with final pricing
+- **Rejected** ❌: Not approved for sale
 
 ### Using Catalog Information
 
 **For WhatsApp Store**:
+- Only use **Approved** sarees for customer quotes
 - Copy saree names and descriptions
 - Use the US Dollar prices for customer quotes
 - Reference saree details for customer questions
 
 **For Inventory Management**:
-- Check what's available
-- See pricing information
-- Track purchase history
+- Check what's available and approved for sale
+- See pricing information for approved items
+- Track purchase and approval history
+- Monitor pending requests
 
 ---
 
@@ -203,44 +263,74 @@ Business expenses include:
 
 ## Manager Functions
 
-*This section is for managers and business owners*
+*This section is for managers, partners, and administrators*
+
+### Procurement Approval Workflow
+
+1. **View Pending Procurement Requests**
+   - Go to "Procurement Management" → "Pending Requests"
+   - See all procurement requests waiting for approval
+   - View details: staff member, saree details, cost, requested markup
+
+2. **Review Each Request**
+   - Click on a request to see full details
+   - Consider the saree description and cost
+   - Evaluate the requested markup percentage
+   - Check if additional costs are needed
+
+3. **Make Approval Decision**
+   - **Approve As-Is**: Accept the request without changes
+   - **Approve with Adjustments**: 
+     - Add transportation, handling, or other costs
+     - Adjust markup percentage
+     - Override exchange rate if needed
+     - Add approval notes
+   - **Reject**: Provide a clear reason for rejection
+
+4. **Understanding Cost Adjustments**
+   - **Additional Costs**: Transportation, insurance, handling fees
+   - **Markup Override**: Change from default 20% to optimize pricing
+   - **Exchange Rate**: Use current rate or set specific rate
+   - **Automatic Expense Creation**: Additional costs become procurement-related expenses
 
 ### Expense Approval Workflow
 
 1. **View Pending Expenses**
    - Go to "Expense Management"
    - See all expenses waiting for approval
-   - View details: who submitted, amount, description, date
+   - View details: who submitted, amount, description, date, category
 
 2. **Review Each Expense**
    - Click on an expense to see full details
    - Consider if it's a legitimate business expense
    - Check if the amount is reasonable
+   - Verify the expense category is appropriate
 
 3. **Make Decision**
    - **Approve**: Click "Approve" if the expense is valid
    - **Reject**: Click "Reject" and provide a reason
    - **Need More Info**: Contact the employee for clarification
 
-### Best Practices for Expense Approval
+### Best Practices for Approvals
 
-**Approve expenses that are**:
-- Clearly business-related
-- Reasonable in amount
-- Well-documented
-- Within company policy
+**Procurement Approvals**:
+- Consider total cost including transportation
+- Verify markup aligns with business strategy
+- Ensure saree quality justifies the price
+- Add necessary additional costs upfront
 
-**Question expenses that are**:
-- Vague in description
-- Unusually high amounts
-- Personal in nature
-- Missing important details
+**Expense Approvals**:
+- Approve expenses that are clearly business-related
+- Verify amounts are reasonable
+- Ensure proper documentation
+- Check expenses align with company policy
 
 ### Viewing Business Reports
 
 1. **Expense Summary**: See total expenses by month, employee, category
-2. **Procurement Summary**: Track saree purchases and inventory value
+2. **Procurement Summary**: Track saree purchases, approvals, and inventory value
 3. **Pricing Analysis**: Review markup percentages and profitability
+4. **Approval Analytics**: Monitor approval rates and processing times
 
 ---
 
@@ -250,37 +340,46 @@ Business expenses include:
 
 **Morning**:
 1. Log into the system
-2. Check any pending tasks or messages
+2. Check status of pending procurement requests
+3. Check any messages from managers about rejections
 
 **During Supplier Visits**:
 1. Take notes on saree details
 2. Record purchase costs
+3. Take photos if possible
 
 **After Each Purchase**:
-1. Immediately record the saree purchase
-2. Verify the selling price calculation
+1. Immediately submit procurement request
+2. Include all relevant details and photos
 3. Note any special features or selling points
 
 **End of Day**:
-1. Review all purchases recorded
+1. Review all requests submitted
 2. Submit any business expenses incurred
+3. Check for any approved requests ready for sale
 
 ### Daily Workflow for Managers
 
 **Morning Review**:
-1. Check pending expense approvals
-2. Review new saree purchases from previous day
-3. Check any system notifications
+1. Check pending procurement requests
+2. Check pending expense approvals
+3. Review any urgent notifications
+
+**Procurement Management**:
+1. Review and approve/reject procurement requests
+2. Add transportation or handling costs as needed
+3. Adjust markup based on saree quality and market
+4. Communicate decisions to staff
 
 **Expense Management**:
 1. Review and approve/reject pending expenses
 2. Follow up on any questionable items
-3. Communicate decisions to staff
+3. Ensure proper expense categorization
 
 **Business Oversight**:
-1. Review catalog additions
+1. Review newly approved sarees in catalog
 2. Monitor pricing and markup strategies
-3. Check overall business metrics
+3. Check overall business metrics and approval rates
 
 ### Weekly Workflow for All Users
 
@@ -329,13 +428,26 @@ Business expenses include:
 2. Contact your manager for clarification
 3. Resubmit with additional information if needed
 
-### Procurement Recording Issues
+### Procurement Request Issues
 
-**Problem**: Price calculation seems wrong
+**Problem**: Request was rejected
 **Solutions**:
-1. Verify the rupee amount is correct
-2. Check if you entered a custom markup percentage
-3. The system uses current exchange rates
+1. Read the rejection reason carefully
+2. Contact your manager for clarification
+3. Address the issues mentioned
+4. Resubmit with corrections if appropriate
+
+**Problem**: Waiting too long for approval
+**Solutions**:
+1. Check with your manager about the delay
+2. Ensure all required information was provided
+3. Follow up politely if urgent
+
+**Problem**: Price calculation seems wrong after approval
+**Solutions**:
+1. Check if manager added additional costs
+2. Verify if markup was adjusted
+3. Review the exchange rate used
 4. Contact manager if calculation still seems incorrect
 
 ### General System Issues
@@ -371,14 +483,23 @@ A: Contact your manager immediately. They can help correct the information.
 
 ### Procurement Questions
 
-**Q: What if the exchange rate changes during the day?**
-A: The system uses the rate set for that day. Small variations are normal in business.
+**Q: Why do procurement requests need approval now?**
+A: This gives managers control over final pricing, allows adding transportation costs, and ensures quality control before sarees go on sale.
 
-**Q: Can I change the markup percentage for each saree?**
-A: Yes, you can set a custom markup when recording the purchase, or use the default 20%.
+**Q: How long does procurement approval take?**
+A: Most requests are reviewed within 1-2 business days.
 
-**Q: What if I forget to record a purchase?**
-A: Record it as soon as you remember. Include the actual purchase date in the description.
+**Q: What if my procurement request is rejected?**
+A: Review the reason, discuss with your manager, and resubmit with corrections if appropriate.
+
+**Q: Can managers change my markup percentage?**
+A: Yes, managers can adjust markup during approval based on saree quality and market conditions.
+
+**Q: What are "additional costs" that managers can add?**
+A: Transportation, insurance, handling fees, or other costs related to getting the saree ready for sale.
+
+**Q: What if I forget to submit a purchase request?**
+A: Submit it as soon as you remember. Include the actual purchase date in the description.
 
 ### Expense Questions
 
@@ -393,6 +514,9 @@ A: Review the reason, clarify with your manager, and resubmit if appropriate.
 
 ### Manager Questions
 
+**Q: What's the difference between Manager, Partner, and Admin roles?**
+A: Managers handle their team's approvals, Partners can see across all managers, and Admins have full system access.
+
 **Q: Can I approve my own expenses?**
 A: This depends on company policy. Generally, expenses should be approved by a different manager.
 
@@ -401,6 +525,9 @@ A: Use the reporting section to view summaries by date, employee, or expense typ
 
 **Q: Can I set different approval limits?**
 A: Currently, all expenses require manager approval regardless of amount.
+
+**Q: What happens when I add costs during procurement approval?**
+A: The system automatically creates a procurement-related expense record for tracking these additional costs.
 
 ---
 

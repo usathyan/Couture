@@ -1,12 +1,14 @@
 from pydantic import BaseModel, EmailStr, ConfigDict, Field
-from typing import Optional
+from typing import Optional, List
 import uuid
 from datetime import datetime
 from enum import Enum
 
 class UserRole(str, Enum):
-    manager = "manager"
     staff = "staff"
+    manager = "manager"
+    partner = "partner"
+    admin = "admin"
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -25,6 +27,12 @@ class User(UserBase):
 
 # --- Expense Models ---
 
+class ExpenseCategory(str, Enum):
+    general = "general"
+    procurement_related = "procurement_related"
+    marketing = "marketing"
+    operational = "operational"
+
 class ExpenseStatus(str, Enum):
     pending = "pending"
     approved = "approved"
@@ -34,6 +42,7 @@ class ExpenseBase(BaseModel):
     description: str
     amount: float = Field(..., gt=0)
     currency: str = "USD"
+    category: ExpenseCategory = ExpenseCategory.general
 
 class ExpenseCreate(ExpenseBase):
     pass
@@ -51,6 +60,11 @@ class Expense(ExpenseBase):
 
 # --- Procurement Models ---
 
+class ProcurementStatus(str, Enum):
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
+
 class SareeBase(BaseModel):
     name: str
     description: Optional[str] = None
@@ -59,8 +73,9 @@ class SareeBase(BaseModel):
 
 class Saree(SareeBase):
     id: uuid.UUID
-    selling_price_usd: float
-    image_urls: list[str] = []
+    selling_price_usd: Optional[float] = None  # Only set after procurement approval
+    image_urls: List[str] = []
+    procurement_status: ProcurementStatus = ProcurementStatus.pending
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -74,6 +89,12 @@ class ProcurementRecordBase(BaseModel):
 class ProcurementRecord(ProcurementRecordBase):
     id: uuid.UUID
     procurement_date: datetime
+    status: ProcurementStatus = ProcurementStatus.pending
+    reviewed_by_user_id: Optional[uuid.UUID] = None
+    review_date: Optional[datetime] = None
+    manager_additional_costs_inr: Optional[float] = None
+    manager_markup_override: Optional[float] = None
+    final_selling_price_usd: Optional[float] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -81,6 +102,18 @@ class ProcurementRecord(ProcurementRecordBase):
 class ProcurementCreate(BaseModel):
     saree_name: str
     saree_description: Optional[str] = None
-    procurement_cost_inr: float
+    procurement_cost_inr: float = Field(..., gt=0)
     markup_percentage: Optional[float] = None
-    # In a real app, this would be an UploadFile 
+    image_urls: Optional[List[str]] = []  # URLs to uploaded images
+
+
+class ProcurementApproval(BaseModel):
+    additional_costs_inr: Optional[float] = Field(None, ge=0)
+    markup_override: Optional[float] = Field(None, ge=0)
+    exchange_rate_override: Optional[float] = Field(None, gt=0)
+    notes: Optional[str] = None
+
+
+class ProcurementStatusUpdate(BaseModel):
+    status: ProcurementStatus
+    approval_details: Optional[ProcurementApproval] = None 

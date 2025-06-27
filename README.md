@@ -28,25 +28,31 @@ This FastAPI-based backend system manages the complete lifecycle of a saree busi
 ### ✅ Implemented Features
 
 1. **User Management & Authentication**
-   - User registration with role assignment (manager/staff)
+   - User registration with 4-tier role system (staff/manager/partner/admin)
    - JWT-based authentication
-   - Role-based access control
+   - Hierarchical role-based access control
 
-2. **Procurement Module**
-   - Record saree purchases with INR costs
-   - Automatic currency conversion (INR → USD)
-   - Configurable markup percentages
-   - Automatic selling price calculation
+2. **Procurement Module with Approval Workflow**
+   - Staff submit procurement requests (pending status)
+   - Manager+ approval workflow with cost override capabilities
+   - Automatic currency conversion (INR → USD) after approval
+   - Manager can add additional costs (transportation, handling, etc.)
+   - Configurable markup percentages with override options
+   - Image upload support for saree documentation
+   - Procurement-related expense classification
 
 3. **Saree Inventory**
-   - List all available sarees
-   - Individual saree details
+   - List all available sarees with status tracking
+   - Individual saree details with approval status
    - Public API for catalog browsing
+   - Pending/Approved/Rejected status management
 
 4. **Expense Management**
-   - Staff can submit expenses
+   - Staff can submit expenses with category classification
    - Managers can view and approve/reject expenses
+   - Procurement-related expenses automatically created for additional costs
    - Complete audit trail with timestamps
+   - Expense categories: general, procurement_related, marketing, operational
 
 ### 🚧 Planned Features (Future Iterations)
 
@@ -142,6 +148,7 @@ make lint       # Run code quality checks
 
 1. **Register a user:**
    ```bash
+   # Register a manager
    curl -X POST "http://localhost:8000/users/register" \
         -H "Content-Type: application/json" \
         -d '{
@@ -149,6 +156,16 @@ make lint       # Run code quality checks
           "password": "securepassword",
           "full_name": "John Manager",
           "role": "manager"
+        }'
+   
+   # Register a partner (can see across managers)
+   curl -X POST "http://localhost:8000/users/register" \
+        -H "Content-Type: application/json" \
+        -d '{
+          "email": "partner@example.com",
+          "password": "securepassword",
+          "full_name": "Jane Partner",
+          "role": "partner"
         }'
    ```
 
@@ -172,7 +189,12 @@ make lint       # Run code quality checks
 - `GET /users/me` - Get current user profile
 
 #### Procurement
-- `POST /procurements/` - Record new saree procurement (authenticated)
+- `POST /procurements/` - Submit procurement request for approval (authenticated)
+- `GET /procurements/pending` - List pending procurement requests (manager+ only)
+- `POST /procurements/{id}/approve` - Approve procurement with optional cost adjustments (manager+ only)
+- `POST /procurements/{id}/reject` - Reject procurement request (manager+ only)
+- `GET /procurements/` - List all procurement records (authenticated)
+- `POST /procurements/legacy` - Legacy direct procurement (backward compatibility)
 
 #### Saree Catalog
 - `GET /sarees/` - List all sarees (public)
@@ -185,9 +207,11 @@ make lint       # Run code quality checks
 
 ### Data Models
 
-#### User Roles
-- **staff**: Can submit expenses and procurements
-- **manager**: Can approve expenses + all staff permissions
+#### User Roles (Hierarchical)
+- **staff**: Can submit expenses and procurement requests
+- **manager**: Can approve/reject procurement requests and expenses + all staff permissions
+- **partner**: Can see across all managers' procurements and expenses + all manager permissions
+- **admin**: Full system access + all partner permissions
 
 #### Procurement Data
 ```json
@@ -195,7 +219,18 @@ make lint       # Run code quality checks
   "saree_name": "Mysore Silk Saree",
   "saree_description": "Traditional handwoven silk",
   "procurement_cost_inr": 15000.0,
-  "markup_percentage": 25.0
+  "markup_percentage": 25.0,
+  "image_urls": ["https://example.com/saree1.jpg", "https://example.com/saree2.jpg"]
+}
+```
+
+#### Procurement Approval Data
+```json
+{
+  "additional_costs_inr": 500.0,
+  "markup_override": 30.0,
+  "exchange_rate_override": 0.013,
+  "notes": "Approved with additional transportation costs"
 }
 ```
 
@@ -204,7 +239,8 @@ make lint       # Run code quality checks
 {
   "description": "Transportation costs",
   "amount": 150.0,
-  "currency": "USD"
+  "currency": "USD",
+  "category": "procurement_related"
 }
 ```
 

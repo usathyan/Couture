@@ -27,10 +27,10 @@ Bangalore (Procurement) → Currency Conversion → Markup Application → USA (
 ```
 
 ### Core Business Entities
-- **Users**: Staff and managers with role-based permissions
-- **Sarees**: Product catalog with procurement and selling prices
-- **Procurement Records**: Purchase history with exchange rates
-- **Expenses**: Submission and approval workflow
+- **Users**: 4-tier role system (staff/manager/partner/admin) with hierarchical permissions
+- **Sarees**: Product catalog with status tracking (pending/approved/rejected)
+- **Procurement Records**: Approval workflow with cost override capabilities
+- **Expenses**: Enhanced submission and approval workflow with category classification
 
 ## Technology Stack
 
@@ -155,7 +155,7 @@ Attributes:
 - id: String (UUID)
 - email: String (unique)
 - full_name: String
-- role: String (manager|staff)
+- role: String (staff|manager|partner|admin)
 - hashed_password: String
 ```
 
@@ -168,8 +168,9 @@ Attributes:
 - description: String
 - procurement_cost_inr: Number
 - markup_percentage: Number
-- selling_price_usd: Number
+- selling_price_usd: Number (nullable - set after approval)
 - image_urls: List[String]
+- procurement_status: String (pending|approved|rejected)
 ```
 
 #### Procurement Records Table
@@ -182,6 +183,12 @@ Attributes:
 - cost_inr: Number
 - inr_to_usd_exchange_rate: Number
 - procurement_date: String (ISO datetime)
+- status: String (pending|approved|rejected)
+- reviewed_by_user_id: String (UUID, optional)
+- review_date: String (ISO datetime, optional)
+- manager_additional_costs_inr: Number (optional)
+- manager_markup_override: Number (optional)
+- final_selling_price_usd: Number (optional)
 ```
 
 #### Expenses Table
@@ -193,6 +200,7 @@ Attributes:
 - description: String
 - amount: Number
 - currency: String
+- category: String (general|procurement_related|marketing|operational)
 - status: String (pending|approved|rejected)
 - submission_date: String (ISO datetime)
 - reviewed_by_user_id: String (UUID, optional)
@@ -237,18 +245,27 @@ Client                    API Server                   Database
   │   ← API Response        ──┤                          │
 ```
 
-### Role-Based Access Control
+### Hierarchical Role-Based Access Control
 
-- **Staff Role**: Can submit expenses and procurements
-- **Manager Role**: All staff permissions + expense approval
+- **Staff Role**: Can submit expenses and procurement requests
+- **Manager Role**: Can approve/reject procurements and expenses + all staff permissions
+- **Partner Role**: Can see across all managers' data + all manager permissions
+- **Admin Role**: Full system access + all partner permissions
 
 Implementation:
 ```python
 def require_manager_role(
     current_user: Annotated[User, Depends(get_current_user)]
 ):
-    if current_user.role != UserRole.manager:
-        raise HTTPException(status_code=403, detail="Manager role required")
+    if current_user.role not in [UserRole.manager, UserRole.partner, UserRole.admin]:
+        raise HTTPException(status_code=403, detail="Manager+ role required")
+    return current_user
+
+def require_partner_role(
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    if current_user.role not in [UserRole.partner, UserRole.admin]:
+        raise HTTPException(status_code=403, detail="Partner+ role required")
     return current_user
 ```
 
@@ -275,12 +292,16 @@ The API follows REST conventions:
 
 #### Protected Endpoints (Authenticated Users)
 - `GET /users/me` - Current user profile
-- `POST /procurements/` - Record procurement
+- `POST /procurements/` - Submit procurement request
+- `GET /procurements/` - List all procurement records
 - `POST /expenses/` - Submit expense
 
-#### Manager-Only Endpoints
+#### Manager+ Endpoints
 - `GET /expenses/` - List all expenses
 - `PATCH /expenses/{id}/status` - Approve/reject expenses
+- `GET /procurements/pending` - List pending procurement requests
+- `POST /procurements/{id}/approve` - Approve procurement with cost adjustments
+- `POST /procurements/{id}/reject` - Reject procurement request
 
 ### API Response Format
 
@@ -322,15 +343,30 @@ def calculate_selling_price(cost_inr: float, exchange_rate: float, markup: float
 - **Per-Item Override**: Configurable markup per saree
 - **Automatic Calculation**: USD selling price computed on procurement
 
+### Procurement Approval Workflow
+
+```
+Staff Submits Procurement → Pending Status → Manager+ Reviews → Approved/Rejected
+                                                    ↓
+                                            Additional Costs Added
+                                                    ↓
+                                         Procurement-Related Expense Created
+```
+
+Procurement state transitions:
+- `pending` → `approved` (manager+ action with optional cost adjustments)
+- `pending` → `rejected` (manager+ action)
+- No transitions from `approved` or `rejected` (immutable decisions)
+
 ### Expense Workflow
 
 ```
-Staff Submits Expense → Pending Status → Manager Reviews → Approved/Rejected
+Staff Submits Expense → Pending Status → Manager+ Reviews → Approved/Rejected
 ```
 
-State transitions:
-- `pending` → `approved` (manager action)
-- `pending` → `rejected` (manager action)
+Expense state transitions:
+- `pending` → `approved` (manager+ action)
+- `pending` → `rejected` (manager+ action)
 - No transitions from `approved` or `rejected` (immutable decisions)
 
 ## Testing Strategy

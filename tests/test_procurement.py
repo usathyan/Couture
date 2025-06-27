@@ -12,7 +12,7 @@ def test_create_procurement_unauthorized():
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
 def test_create_procurement_authorized():
-    """An authenticated user should be able to create a procurement."""
+    """An authenticated user should be able to submit a procurement for approval."""
     # 1. Register a user
     client.post("/users/register", json={"email": "test@example.com", "password": "password", "role": "staff"})
 
@@ -21,7 +21,7 @@ def test_create_procurement_authorized():
     token = token_response.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
 
-    # 3. Create the procurement
+    # 3. Submit the procurement
     procurement_data = {
         "saree_name": "A beautiful saree",
         "saree_description": "From the finest silk.",
@@ -30,13 +30,16 @@ def test_create_procurement_authorized():
     }
     proc_response = client.post("/procurements/", headers=headers, json=procurement_data)
 
-    # 4. Assert the creation was successful
+    # 4. Assert the submission was successful
     assert proc_response.status_code == status.HTTP_201_CREATED
-    saree_data = proc_response.json()
-    assert saree_data["name"] == "A beautiful saree"
+    procurement_data = proc_response.json()
+    assert procurement_data["cost_inr"] == 150.0
+    assert procurement_data["status"] == "pending"  # New procurements are pending approval
 
-    # 5. Assert that the created saree now appears in the public list
+    # 5. Check that a saree was created in pending status
     list_response = client.get("/sarees/")
     assert list_response.status_code == status.HTTP_200_OK
-    assert len(list_response.json()) == 1
-    assert list_response.json()[0]["name"] == "A beautiful saree" 
+    sarees = list_response.json()
+    assert len(sarees) == 1
+    assert sarees[0]["name"] == "A beautiful saree"
+    assert sarees[0]["procurement_status"] == "pending" 
